@@ -1,27 +1,31 @@
 MOTIVATION
 
 1. For what purpose was the dataset created?
-The dataset was created to get more detailed information from the Norman PD website about the daily criminal incidents.
+The dataset was created to get more detailed information and additional fields from the Norman PD website about the daily 
+criminal incidents in Norman, Oklahoma.
 
 2. Who created the dataset and on behalf of which entity? 
-The dataset was created by Aishwarya Tonpe for her CIS 6930 : Data Engineering course as a part of Assignment 2 which focused on Data Augmentatiob.
+The dataset was created by Aishwarya Tonpe for her CIS 6930 : Data Engineering course as a part of Assignment 2 which 
+focused on Data Augmentation.
 
 COMPOSITION
 
 1. What do the instances that comprise the dataset represent?
-The instances comprise of information about criminal incidents in Norman, Oklahoma derived, processed and augmented to give additional information
-about the incidents
+The instances comprise of information about criminal incidents in Norman, Oklahoma derived, processed and augmented to give 
+additional information about the incidents like the weather code at the moment, hour of the day, day of the week, side of the town,
+nature of the crime and the rank of the crime based on how far up or frequently the crime occurs.
 
 2. How many instances are there in total?
-(The answer to this question is undetermined as we have not been told how many pdfs of incident summary reports will be scanned as a part of this assignment.
-But the total number of instances will be amount to the total number of records combined across all the pdfs being traversed)
+(The answer to this question is undetermined as we have not been told how many pdfs of incident summary reports will be scanned as a 
+part of this assignment. But the total number of instances will be amount to the total number of records combined across all the pdfs being traversed)
 
 3. Does the dataset contain all possible instances or is it a sample of instances from a larger set?
 The dataset is a sample of a larger set, the larger dataset consists of instances for daily activities in the past 2 months for every day.
 
 4. What data does each instance consist of?
-The data consists of text fields. The data consists of 8 text fields namely - Day of the Week, Time of Day, Weather, Location Rank, Side of Town,  Incident Rank, Nature, EMSSTAT
-These fields are derived after processing dataa from the Norman Police Department's website for daily incident summaries. 
+The data consists of text fields. The data consists of 8 text fields namely - 
+Day of the Week, Time of Day, Weather, Location Rank, Side of Town,  Incident Rank, Nature, EMSSTAT
+These fields are derived after processing data from the Norman Police Department's website for daily incident summaries. 
 
 5. Is any information missing from individual instances?
 Yes, information is missing from some of the instances. Some of the instances might have missing or dummy weather code as weather is 
@@ -31,7 +35,7 @@ resulted into dummy or missing coordinates and a dummy weather code. In such cas
 is -1. Also the side of town is determined using the coordinates and is missing in such cases.
 
 6. Are there any errors, sources of noise, or redundancies in the dataset?
-This data is augmented form the norman pd's daily incident summary. There are redundancies in some data which might have the same location,
+This data is augmented from the norman pd's daily incident summary. There are redundancies in some data which might have the same location,
 same day, same time or hour and same incident type. In this case, the augmented data is redundant.
 
 7. Is the dataset self-contained, or does it link to or otherwise rely on external resources?
@@ -70,4 +74,29 @@ two contain an EMSSTAT at the same time and locaton.
 The data consists from the past 2 months.
 
 3. How was the data collected?
-The data was collected using Norman PD's daily incident summary report and then augmenting it.
+The data was collected using Norman PD's daily incident summary report and then augmenting it by using different functions on it
+to get the desired fields.
+
+Preprocessing/cleaning/labeling
+1. How was the data preprocessed?
+The data was preprocessed using Python libraries and python code. Where a csv containing all the pdfs of the daily incidents were
+stored, the code then fetched every pdf, extracted data from it and preprocessed the data using suitable libraries.
+
+USES
+1. Has the dataset been used for any tasks already?
+No, it has not been used already
+
+
+DISTRIBUTION
+1. Will the dataset be distributed to third parties outside of the entity (for example, company, institution, organization) on 
+behalf of which the dataset was created?
+No, it will not be distributed outside
+
+
+MAINTENANCE
+1. Who will be supporting/hosting/maintaining the dataset?
+Aishwarya Tonpe, CS Gradutate student at University of Florida
+
+2. How can the owner/curator/manager of the dataset be contacted?
+tonpea@ufl.edu
+
