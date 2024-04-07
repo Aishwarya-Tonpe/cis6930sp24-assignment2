@@ -1,4 +1,6 @@
 import argparse
+
+import geocoder as geocoder
 import pandas as pd
 import pypdf
 from Constants import strings
@@ -11,6 +13,7 @@ from geopy.geocoders import Nominatim
 import requests
 import googlemaps
 import configparser
+from opencage.geocoder import OpenCageGeocode
 
 def download_data(url):
     headers = {}
@@ -116,20 +119,24 @@ def get_day_hour_from_the_date(date_string):
     return (day_of_week, hour)
 
 def get_coordinates(location, api_key):
-    gmaps = googlemaps.Client(key=api_key)
-    geocode_result = gmaps.geocode(location)
+    # gmaps = googlemaps.Client(key=api_key)
+    # geocode_result = gmaps.geocode(location)
+    geocoder = OpenCageGeocode(api_key)
+    geocode_result = geocoder.geocode(location)
     if geocode_result:
         # Extract the latitude and longitude from the result
-        location = geocode_result[0]['geometry']['location']
-        latitude = location['lat']
-        longitude = location['lng']
+        # location = geocode_result[0]['geometry']['location']
+        # latitude = location['lat']
+        # longitude = location['lng']
+        latitude = geocode_result[0]['geometry']['lat']
+        longitude = geocode_result[0]['geometry']['lng']
+        # coordinates_dict[location] = (longitude, latitude)
         return longitude, latitude
     else:
         print("No results found for the address:", location)
         return ()
 
-
-def get_weather_code(date_string, location, api_key):
+def get_weather_code(date_string, location, api_key, longitude, latitude):
 
     if int(date_string[0]) > 1 and date_string[1] != '/':
         date_string = date_string[1:]
@@ -139,11 +146,6 @@ def get_weather_code(date_string, location, api_key):
     # Extract the date and time components
     date = date_object.date()
     time = date_object.hour
-
-    coordinates = get_coordinates(location, api_key)
-    if len(coordinates) != 0:
-        (longitude, latitude) = coordinates
-    else: (longitude, latitude) = (9999, 9999)
 
     if latitude > 180 or latitude < -180 or longitude > 180 or longitude < -180:
         return -1
@@ -213,13 +215,7 @@ def rank_incidents(incident_data):
     return incident_rankings
 
 
-def get_side_of_the_town(location, central_latitude, central_longitude, api_key):
-
-    coordinates = get_coordinates(location, api_key)
-
-    if len(coordinates) != 0:
-        (longitude, latitude) = coordinates
-    else: (longitude, latitude) = (9999, 9999)
+def get_side_of_the_town(location, central_latitude, central_longitude, api_key, longitude, latitude):
     longitude_diff = longitude - central_longitude
     latitude_diff = latitude - central_latitude
 
@@ -243,27 +239,37 @@ def get_side_of_the_town(location, central_latitude, central_longitude, api_key)
     return side_of_town
 
 def get_emsstat(record, info):
-    # target_record_incident_number = record['Incident Number']
-    if record['IncidentType'] == 'EMSSTAT': return int(True)
+    flag = True
+    if record['IncidentType'] == 'EMSSTAT':
+        flag = int(True)
     elif record['IncidentType'] != 'EMSSTAT':
         target_index = info.index(record)
         if target_index < len(info) - 1:
             target_1 = info[target_index + 1]
             if target_1['IncidentType'] == 'EMSSTAT' and target_1['Location'] == record['Location'] and target_1['DateTime'] == record['DateTime']:
-                return int(True)
+                flag = int(True)
+            else:
+                flag = int(False)
         if target_index < len(info) - 2:
             target_2 = info[target_index + 2]
             if target_2['IncidentType'] == 'EMSSTAT' and target_2['Location'] == record['Location'] and target_2['DateTime'] == record['DateTime']:
-                return int(True)
+                flag = int(True)
+            else:
+                flag = int(False)
         else:
-            return int(False)
+            flag = int(False)
+    else:
+        flag = int(False)
+
+    return flag
 
 
 # Function to perform data augmentation
 def perform_data_augmentation(pdf_urls):
     all_augmented_data = []
+    count = 1
     for url in pdf_urls:
-        print("FILE")
+        print("FILE", count)
 
         pdf_path = url.split('/')[-1]
         pdf = download_data(url)
@@ -278,24 +284,31 @@ def perform_data_augmentation(pdf_urls):
         columns = ['Day of the Week', 'Time of Day', 'Weather',	'Location Rank',	'Side of Town',	'Incident Rank', 'Nature', 'EMSSTAT']
         config = configparser.ConfigParser()
         config.read('config.ini')
-        api_key = config['APIKeys']['weather_api_key']
-        print("******", api_key)
+        # api_key = config['APIKeys']['weather_api_key']
+        api_key = config['APIKeys']['open_cage_api_key']
 
         augmented_data = []
         for record in pdf_info:
+            coordinates = get_coordinates(record["Location"], api_key)
+            if len(coordinates) != 0:
+                (longitude, latitude) = coordinates
+            else:
+                (longitude, latitude) = (9999, 9999)
             (day, hour) = get_day_hour_from_the_date(record['DateTime'])
-            weather_code = get_weather_code(record['DateTime'], record['Location'], api_key)
+            weather_code = get_weather_code(record['DateTime'], record['Location'], api_key, longitude, latitude)
             location_rank = location_ranks[record['Location']]
-            side_of_town = get_side_of_the_town(record['Location'], central_latitude, central_longitude, api_key)
+            side_of_town = get_side_of_the_town(record['Location'], central_latitude, central_longitude, api_key, longitude, latitude)
             incident_rank = incident_ranks[record['nature']]
             nature = record['nature']
             emssat = get_emsstat(record, pdf_info)
             new_record = (day, hour, weather_code, location_rank, side_of_town, incident_rank, nature, emssat)
             augmented_data.append(new_record)
+
         pd.set_option('display.max_rows', None)
         df = pd.DataFrame(augmented_data, columns=columns)
         print(df)
-        all_augmented_data.append(df.to_string())
+        all_augmented_data.append(df)
+        count = count + 1
 
     return all_augmented_data
 

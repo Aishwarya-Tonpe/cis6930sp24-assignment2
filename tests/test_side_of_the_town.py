@@ -11,5 +11,4 @@ def test_get_side_of_the_town():
     central_latitude = 40.7128
     central_longitude = -74.0060
     side_of_town = get_side_of_the_town(location, central_latitude, central_longitude, api_key)
-    # Assert the expected side of the town
     assert side_of_town == "SE"

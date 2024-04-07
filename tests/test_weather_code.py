@@ -11,5 +11,4 @@ def test_get_emsstat():
     }
     info = []
     emsstat = get_emsstat(record, info)
-    # Assert that EMS status is True
     assert emsstat == 1
