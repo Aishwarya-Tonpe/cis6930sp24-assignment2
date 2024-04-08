@@ -6,7 +6,8 @@ Use command : pipenv run python assignment2.py --urls files.csv
 BUGS AND ASSUMPTIONS : 
 1. Assumed that the date time format does not change
 2. Assumed that data in every pdf will be first downloaded and then processed
-3. Assumed that its reasonable to use Google Maps API which needs API-key
+3. Assumed that its reasonable to use Google Maps API which needs API-key or open-cage API which also needs API key
+4. In case of Google API and Open-cage, only 2500 free requests are permitted per day
 
 
 IMPORTANT FUNCTIONS : 
