@@ -123,11 +123,13 @@ def get_coordinates(location, api_key):
     # geocode_result = gmaps.geocode(location)
     geocoder = OpenCageGeocode(api_key)
     geocode_result = geocoder.geocode(location)
+    print("res", geocode_result)
     if geocode_result:
         # Extract the latitude and longitude from the result
         # location = geocode_result[0]['geometry']['location']
         # latitude = location['lat']
         # longitude = location['lng']
+        # print("Address found")
         latitude = geocode_result[0]['geometry']['lat']
         longitude = geocode_result[0]['geometry']['lng']
         # coordinates_dict[location] = (longitude, latitude)
@@ -216,8 +218,8 @@ def rank_incidents(incident_data):
 
 
 def get_side_of_the_town(location, central_latitude, central_longitude, api_key, longitude, latitude):
-    longitude_diff = longitude - central_longitude
-    latitude_diff = latitude - central_latitude
+    longitude_diff = central_longitude - longitude
+    latitude_diff = central_latitude - latitude
 
     # Determine the direction in terms of North (N) or South (S)
     if latitude_diff > 0:
@@ -281,7 +283,7 @@ def perform_data_augmentation(pdf_urls):
         central_longitude = 35.220833
         central_latitude = -97.443611
 
-        columns = ['Day of the Week', 'Time of Day', 'Weather',	'Location Rank',	'Side of Town',	'Incident Rank', 'Nature', 'EMSSTAT']
+        columns = ['Day of the Week', 'Time of Day', 'Weather',	'Location Rank', 'Side of Town',	'Incident Rank', 'Nature', 'EMSSTAT']
         config = configparser.ConfigParser()
         config.read('config.ini')
         # api_key = config['APIKeys']['weather_api_key']
